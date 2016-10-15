@@ -64,6 +64,12 @@ PermitEmptyPasswords yes
 ## 檢查 IP
 - ifconfig 
 
+## 修改Hostname
+- 在master 下: sudo hostname master 
+- 在data1  下: sudo hostname data1
+- 在data2  下: sudo hostname data2 
+- 在data3  下: sudo hostname data3 
+
 ## 編輯 hosts
 - vi /etc/hosts
 ```
@@ -73,13 +79,13 @@ PermitEmptyPasswords yes
 	192.168.233.158 data3
 ```
 
-## 修改Hostname
-- sudo hostname master 
-
 ## 關閉防火牆
-- chkconfig iptables off
-- service iptables stop
+- sudo chkconfig iptables off
+- sudo service iptables stop
 
 ## 啟動所有Cluster
 - /usr/local/spark/sbin/start-all.sh
+
+## 關閉所有Cluster
+- /usr/local/spark/sbin/stop-all.sh
 
