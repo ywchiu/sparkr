@@ -51,13 +51,15 @@ PermitEmptyPasswords yes
 
 ## 讓權限修改生效
 - sudo service sshd restart
-- ssh-add
 
 ## 設定無金鑰登入
 - ssh-keygen -t dsa -P '' -f ~/.ssh/id_dsa
 - cat ~/.ssh/id_dsa.pub >> ~/.ssh/authorized_keys
 - chmod 700 ~/.ssh
 - chmod 600 ~/.ssh/authorized_keys
+
+## 檢查是否能登入
+- ssh localhost
 
 ## 將Master 做Copy
 
