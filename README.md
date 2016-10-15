@@ -4,4 +4,4 @@
 - https://www.slideshare.net/secret/A1R1fEkhZPkhTz
 
 ## 設定Spark Cluster
-- 
+- https://github.com/ywchiu/sparkr/blob/master/spark-cluster.md
