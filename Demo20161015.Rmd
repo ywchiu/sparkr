@@ -1,0 +1,55 @@
+---
+title: "Demo20161015"
+author: "David Chiu"
+date: "10/14/2016"
+output: html_document
+---
+
+
+# DataFrame Introduction
+```{r}
+height <- 180
+heights <- c(166,172,182)
+matrix(c(c(80,70,82), c(77,80,82), c(45,56,62)), nrow=3)
+data.frame(mary = c(80,70,82), john = c(77,80,82), qoo = c(45,56,62))
+```
+
+# Loading IRIS dataset
+```{r}
+data(iris)
+class(iris)
+View(iris)
+str(iris)
+summary(iris)
+head(iris)
+tail(iris)
+?head
+head(iris, 10)
+
+```
+
+# Data Manipulation in R
+```{r}
+#取前三列資料
+iris[1:3,]
+#取前三列第一行的資料
+iris[1:3,1]
+#也可以用欄位名稱取值
+iris[1:3,"Sepal.Length"]
+#取前兩行資料
+iris[,1:2]
+#取特定欄位向量值
+iris$"Sepal.Length"
+```
+
+```{r}
+#取前五筆包含length 及 width 的資料
+five.Sepal.iris <- iris[1:5, c("Sepal.Length", "Sepal.Width")]
+five.Sepal.iris
+
+#可以用條件做篩選
+setosa.data <- iris[iris$Species=="setosa",1:5]
+
+```
+
+
