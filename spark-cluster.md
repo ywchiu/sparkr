@@ -1,52 +1,85 @@
-1. wget http://d3kbcqa49mib13.cloudfront.net/spark-2.0.1-bin-hadoop2.7.tgz
-2. tar -zxvf spark-2.0.1-bin-hadoop2.7.tgz
-3. sudo mv spark-2.0.1-bin-hadoop2.7 /usr/local/spark
-4. sudo vi /etc/profile
- - export SPARK_HOME=/usr/local/spark
- - export PATH=$PATH:$SPARK_HOME/bin
-5. source /etc/profile
+# 安裝單機版步驟
+## 下載Spark 2.0.1
+- wget http://d3kbcqa49mib13.cloudfront.net/spark-2.0.1-bin-hadoop2.7.tgz
 
-cd /usr/local/spark/conf
-cp spark-env.sh.template spark-env.sh
-cp slaves.template slaves
-vi slaves
-    master
-vi spark-env.sh
+## 解壓縮檔案
+- tar -zxvf spark-2.0.1-bin-hadoop2.7.tgz
+
+## 將檔案放置至/usr/local/spark 中
+- sudo mv spark-2.0.1-bin-hadoop2.7 /usr/local/spark
+
+## 設定環境變數
+- sudo vi /etc/profile
+```
+export SPARK_HOME=/usr/local/spark
+export PATH=$PATH:$SPARK_HOME/bin
+```
+
+## 讓環境變數生效
+- source /etc/profile
+
+
+# 安裝Cluster步驟
+
+## 設定 spark-env
+- cd /usr/local/spark/conf
+- cp spark-env.sh.template spark-env.sh
+- cp slaves.template slaves
+
+## 修改 slaves 跟 spark-env
+- vi slaves
+```
+master
+```
+
+- vi spark-env.sh
+```
 export SPARK_MASTER_IP=master
 export SPARK_WORKER_CORES=1
 export SPARK_WORKER_MEMORY=800m
 export SPARK_WORKER_INSTANCES=2
+```
 
 
-ifconfig 
 
-6. 編輯 hosts
-vi /etc/hosts
-    192.168.233.155 master
-	192.168.233.156
-sudo hostname master 
-
-ssh-keygen -t rsa
-cat id_rsa.pub > authorized_keys
-
-修改/etc/ssh/sshd_config
-
-sudo vi /etc/ssh/sshd_config
-將PasswordAuthentication?變更為no
-sudo service sshd restart
-PermitEmptyPasswords yes
+## 修改/etc/ssh/sshd_config
+- sudo vi /etc/ssh/sshd_config
+```
 PasswordAuthentication no
+PermitEmptyPasswords yes
+```
 
-ssh-add
-設置無密碼登入
+## 讓權限修改生效
+- sudo service sshd restart
+- ssh-add
 
-ssh-keygen -t dsa -P '' -f ~/.ssh/id_dsa
-cat ~/.ssh/id_dsa.pub >> ~/.ssh/authorized_keys
-chmod 700 ~/.ssh
-chmod 600 ~/.ssh/authorized_keys
+## 設定無金鑰登入
+- ssh-keygen -t dsa -P '' -f ~/.ssh/id_dsa
+- cat ~/.ssh/id_dsa.pub >> ~/.ssh/authorized_keys
+- chmod 700 ~/.ssh
+- chmod 600 ~/.ssh/authorized_keys
 
+## 將Master 做Copy
 
-/usr/local/spark/sbin/start-all.sh
+## 檢查 IP
+- ifconfig 
 
-chkconfig iptables off
-service iptables stop
+## 編輯 hosts
+- vi /etc/hosts
+```
+    192.168.233.155 master
+	192.168.233.156 data1
+	192.168.233.157 data2
+	192.168.233.158 data3
+```
+
+## 修改Hostname
+- sudo hostname master 
+
+## 關閉防火牆
+- chkconfig iptables off
+- service iptables stop
+
+## 啟動所有Cluster
+- /usr/local/spark/sbin/start-all.sh
+
