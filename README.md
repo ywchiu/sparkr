@@ -7,11 +7,13 @@
 - https://www.slideshare.net/secret/A1R1fEkhZPkhTz
 
 
-
 ## 設定Spark Cluster
 
 - https://github.com/ywchiu/sparkr/blob/master/spark-cluster.md
 
+## 程式碼
+
+- http://rpubs.com/ywchiu/SparkR1
 
 ## 下載與安裝 R
 - wget http://download.fedoraproject.org/pub/epel/6/x86_64/epel-release-6-8.noarch.rpm
