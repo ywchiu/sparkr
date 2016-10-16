@@ -7,22 +7,23 @@ output: html_document
 
 # load sparkR
 ```{r}
-# è¨­å®šSparkR ç’°å¢ƒè®Šæ•¸
+# ³]©wSparkR Àô¹ÒÅÜ¼Æ
 if (nchar(Sys.getenv("SPARK_HOME")) < 1) {
   Sys.setenv(SPARK_HOME = "/usr/local/spark")
 }
 
-# è¼‰å…¥SparkR
+# ¸ü¤JSparkR
 library(SparkR, lib.loc = c(file.path(Sys.getenv("SPARK_HOME"), "R", "lib")))
 
-# ã€€æœ¬åœ°ç«¯å•Ÿç”¨
+# ¡@¥»¦aºİ±Ò¥Î
 sparkR.session(master = "local[*]" ,sparkConfig =                                          list(
                         spark.sql.shuffle.partitions = "3",
-                        spark.default.parallelism="2"))
+                        spark.default.parallelism="2",
+                        spark.cores.max = "1"))
 
 ```
 
-## è®€å–è³‡æ–™
+## Åª¨ú¸ê®Æ
 ```{r}
 
 download.file('https://github.com/ywchiu/sparkr/raw/master/data/lvr_prices.csv', destfile = 'lvr_prices.csv')
@@ -79,15 +80,15 @@ detach("package:dplyr", unload=TRUE)
 head(select(lvr_data, lvr_data$area, lvr_data$total_price))
 
 # R Style
-head(lvr_prices[lvr_prices$area == 'å¤§å®‰å€',])
+head(lvr_prices[lvr_prices$area == '¤j¦w°Ï',])
 
 # dplyr Style
 library(dplyr)
-head(filter(lvr_prices, area == 'å¤§å®‰å€'))
+head(filter(lvr_prices, area == '¤j¦w°Ï'))
 
 detach("package:dplyr", unload=TRUE)
 # SparkR Style
-head(filter(lvr_data, lvr_data$area == 'å¤§å®‰å€'))
+head(filter(lvr_data, lvr_data$area == '¤j¦w°Ï'))
 
 
 ```
@@ -98,7 +99,7 @@ head(filter(lvr_data, lvr_data$area == 'å¤§å®‰å€'))
 library(magrittr)
 
 # R Style
-head(lvr_prices[lvr_prices$area == 'å¤§å®‰å€', c('area', 'total_price') ])
+head(lvr_prices[lvr_prices$area == '¤j¦w°Ï', c('area', 'total_price') ])
 
 
 # head(select(lvr_prices, area, total_price))
@@ -114,8 +115,8 @@ lvr_data %>% select(lvr_data$area, lvr_data$total_price) %>% head()
 
 lvr_data %>% 
   select(lvr_data$area, lvr_data$total_price) %>%
-  filter(lvr_data$area == 'å¤§å®‰å€') %>% 
-  ã€€head()
+  filter(lvr_data$area == '¤j¦w°Ï') %>% 
+  ¡@head()
 
 # head(summarize(groupBy(lvr_data, lvr_data$area), price_sum = sum(lvr_data$total_price)))
 
@@ -191,19 +192,19 @@ class(lvr_sql)
 head(lvr_sql)
 ```
 
-# æ ¹æ“šå„å€è¨ˆç®—æ¯æœˆå¹³å‡åƒ¹æ ¼è®ŠåŒ–
+# ®Ú¾Ú¦U°Ï­pºâ¨C¤ë¥­§¡»ù®æÅÜ¤Æ
 ```{r}
-#å–å¾—äº¤æ˜“å¹´æœˆè³‡æ–™
+#¨ú±o¥æ©ö¦~¤ë¸ê®Æ
 lvr_data$trading_ym <- date_format(lvr_data$trading_ymd, "yyyy-MM-01")
 
-#æ ¹æ“šå€åŸŸèˆ‡å¹´æœˆè¨ˆç®—å¹³å‡äº¤æ˜“åƒ¹æ ¼
+#®Ú¾Ú°Ï°ì»P¦~¤ë­pºâ¥­§¡¥æ©ö»ù®æ
 mean_prices <- 
         summarize(
           groupBy(lvr_data, lvr_data$area, lvr_data$trading_ym),
           price_avg = mean(lvr_data$total_price)
         )
 
-#å–å¾—å¹³å‡åƒ¹æ ¼
+#¨ú±o¥­§¡»ù®æ
  mean_df <- collect(mean_prices)
  mean_df$trading_ym <- as.Date(mean_df$trading_ym)
  
@@ -214,6 +215,96 @@ mean_prices <-
 }
 
 ```
+
+# Machine Learning On diabetic data
+```{r}
+#download.file('https://github.com/ywchiu/sparkr/raw/master/data/diabetic_sample.csv', 'diabetic_sample.csv')
+
+#diabetes = read.csv('diabetic_sample.csv')
+#View(diabetes)
+
+
+#install.packages('lars')
+library(lars)
+data(diabetes)
+
+
+diabetes_all <- data.frame(cbind(diabetes$x, y = diabetes$y))
+outcome_name <- 'y'
+diabetes_all$sex <- as.numeric(as.factor(diabetes_all$sex ))
+
+```
+
+# split into training and testing dataset
+```{r}
+set.seed(1234)
+splitIndex <- base::sample(nrow(diabetes_all),
+floor(0.75*nrow(diabetes_all)))
+
+## 331 as training
+train_diabetes <- diabetes_all[ splitIndex,]
+
+## 111 as testing
+test_diabetes <- diabetes_all[-splitIndex,]
+
+
+train_diabetes_sp <- createDataFrame(train_diabetes)
+
+test_diabetes_sp <- createDataFrame(test_diabetes)
+
+class(train_diabetes_sp)
+class(test_diabetes_sp)
+```
+
+# regression model
+```{r}
+model <- glm(y~age+sex+bmi+map+tc+ldl+hdl+tch+ltg+glu,
+data=train_diabetes_sp, family='gaussian')
+class(model)
+
+summary(model)
+
+
+predictions <- predict(model, newData = test_diabetes_sp)
+names(predictions)
+
+test_output <- collect(test_diabetes_sp)
+predictions_ = test_output$y
+predictions_details <- collect(predictions)
+mse <- mean(predictions_details$label - predictions_details$prediction)
+
+```
+
+# house prediction
+```{r}
+
+set.seed(1234)
+splitIndex <- base::sample(nrow(lvr_prices),
+floor(0.75*nrow(lvr_prices)))
+
+## 24401 as training
+train_lvr <- lvr_prices[ splitIndex,]
+
+## 8134 as testing
+test_lvr <- lvr_prices[-splitIndex,]
+
+
+train_lvr_sp <- createDataFrame(train_lvr)
+
+test_lvr_sp <- createDataFrame(test_lvr)
+
+paste(names(lvr_prices), collapse = "+")
+
+model <- glm(total_price~area+building_sqmeter,
+data=train_lvr_sp, family='gaussian')
+
+class(model)
+
+summary(model)
+
+
+```
+
 
 
 
