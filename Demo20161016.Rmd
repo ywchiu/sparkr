@@ -135,9 +135,85 @@ lvr_data %>% groupBy(lvr_data$area) %>%
   arrange(desc(.$price_sum)) %>% 
   head()
 
+
+
+
 ```
 
+#@ datediff
+```{r}
+lvr_data$house_age <- (datediff(date_format(lvr_data$trading_ymd, "yyyy-MM-dd"), date_format(lvr_data$finish_ymd, "yyyy-MM-dd")))/ 365
 
+```
+
+## gapply, gapplycollect
+```{r}
+schema <- structType(structField("area", "string"), structField("total_price", "double"))
+
+# gapply => transformation
+result <- gapply(
+  lvr_data,
+  "area",
+  function(key, x) {
+    y <- data.frame(key, sum(x$total_price), stringsAsFactors = FALSE)
+  },
+  schema)
+
+head(collect(arrange(result, "total_price", decreasing = TRUE)))
+class(result) # Spark DataFrame
+
+
+# gapplycollect => action
+result <- gapplyCollect(
+  lvr_data,
+  "area",
+  function(key, x) {
+    y <- data.frame(key, sum(x$total_price))
+    colnames(y) <- c("area", "sum_price")
+    y
+  })
+
+ class(result) # R dataframe
+```
+
+# SparkSQL
+```{r}
+createOrReplaceTempView(lvr_data, "lvr_data")
+
+lvr_sql <- sql("
+      SELECT area, avg(total_price) 
+        FROM lvr_data 
+       WHERE house_age < 30 
+    GROUP BY area
+    ORDER BY avg(total_price) DESC")
+
+class(lvr_sql)
+head(lvr_sql)
+```
+
+# 根據各區計算每月平均價格變化
+```{r}
+#取得交易年月資料
+lvr_data$trading_ym <- date_format(lvr_data$trading_ymd, "yyyy-MM-01")
+
+#根據區域與年月計算平均交易價格
+mean_prices <- 
+        summarize(
+          groupBy(lvr_data, lvr_data$area, lvr_data$trading_ym),
+          price_avg = mean(lvr_data$total_price)
+        )
+
+#取得平均價格
+ mean_df <- collect(mean_prices)
+ mean_df$trading_ym <- as.Date(mean_df$trading_ym)
+ 
+ par(mfrow= c(3,4))
+ for (a in unique(mean_df$area)){
+  new_df = mean_df[mean_df$area == a, ] 
+  plot(sort(new_df$trading_ym), new_df$price_avg[order(new_df$trading_ym)]  , main = a, type='l', col= 'red', margin = 0.1)
+}
+
+```
 
 
 
