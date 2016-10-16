@@ -1,0 +1,99 @@
+---
+title: "Demo20161016"
+author: "David Chiu"
+date: "2016/10/16"
+output: html_document
+---
+
+# load sparkR
+```{r}
+# 設定SparkR 環境變數
+if (nchar(Sys.getenv("SPARK_HOME")) < 1) {
+  Sys.setenv(SPARK_HOME = "/usr/local/spark")
+}
+
+# 載入SparkR
+library(SparkR, lib.loc = c(file.path(Sys.getenv("SPARK_HOME"), "R", "lib")))
+
+# 　本地端啟用
+sparkR.session(master = "local[*]")
+
+```
+
+## 讀取資料
+```{r}
+
+download.file('https://github.com/ywchiu/sparkr/raw/master/data/lvr_prices.csv', destfile = 'lvr_prices.csv')
+lvr_prices <- read.csv('~/lvr_prices.csv', header=TRUE)
+
+View(lvr_prices)
+
+class(lvr_prices)
+
+str(lvr_prices)
+
+```
+
+## Data visualization
+```{r}
+hist(lvr_prices$total_price)
+boxplot(lvr_prices$total_price)
+
+hist(log10(lvr_prices$total_price))
+boxplot(log10(lvr_prices$total_price))
+
+```
+
+## Convert R DataFrame to Spark Data Frame
+```{r}
+?as.DataFrame
+lvr_data <- as.DataFrame(lvr_prices)
+
+head(lvr_data)
+
+?showDF
+showDF(lvr_data)
+
+class(lvr_data)
+printSchema(lvr_data)
+
+
+```
+
+# dplyr
+```{r}
+# install.packages('dplyr')
+library(dplyr)
+
+str(lvr_prices)
+# R Style
+head(lvr_prices[,c('area', 'total_price')])
+
+# dplyr Style
+head(select(lvr_prices, area, total_price))
+
+detach("package:dplyr", unload=TRUE)
+# SparkR Style
+head(select(lvr_data, lvr_data$area, lvr_data$total_price))
+
+# R Style
+head(lvr_prices[lvr_prices$area == '大安區',])
+
+# dplyr Style
+library(dplyr)
+head(filter(lvr_prices, area == '大安區'))
+
+detach("package:dplyr", unload=TRUE)
+# SparkR Style
+head(filter(lvr_data, lvr_data$area == '大安區'))
+
+```
+
+
+
+# stop sparkr
+```{r}
+sparkR.stop()
+```
+
+
