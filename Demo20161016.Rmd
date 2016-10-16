@@ -16,7 +16,9 @@ if (nchar(Sys.getenv("SPARK_HOME")) < 1) {
 library(SparkR, lib.loc = c(file.path(Sys.getenv("SPARK_HOME"), "R", "lib")))
 
 # 　本地端啟用
-sparkR.session(master = "local[*]")
+sparkR.session(master = "local[*]" ,sparkConfig =                                          list(
+                        spark.sql.shuffle.partitions = "3",
+                        spark.default.parallelism="2"))
 
 ```
 
@@ -87,7 +89,55 @@ detach("package:dplyr", unload=TRUE)
 # SparkR Style
 head(filter(lvr_data, lvr_data$area == '大安區'))
 
+
 ```
+
+# magrittr
+```{r}
+# install.packages('magrittr')
+library(magrittr)
+
+# R Style
+head(lvr_prices[lvr_prices$area == '大安區', c('area', 'total_price') ])
+
+
+# head(select(lvr_prices, area, total_price))
+
+library(dplyr)
+# dplyr style
+lvr_prices %>% select(area, total_price) %>% head()
+
+detach("package:dplyr", unload=TRUE)
+# SparkR Style
+lvr_data %>% select(lvr_data$area, lvr_data$total_price) %>% head()
+
+
+lvr_data %>% 
+  select(lvr_data$area, lvr_data$total_price) %>%
+  filter(lvr_data$area == '大安區') %>% 
+  　head()
+
+# head(summarize(groupBy(lvr_data, lvr_data$area), price_sum = sum(lvr_data$total_price)))
+
+lvr_data %>% groupBy(lvr_data$area) %>% 
+  summarize(price_sum = sum(lvr_data$total_price)) %>%
+  head()
+
+
+#summarize(groupBy(lvr_data, lvr_data$area), price_sum = sum(lvr_data$total_price)) %>% arrange(desc(.$price_sum)) %>% head()
+lvr_data %>% groupBy(lvr_data$area) %>% 
+  summarize(price_sum = sum(lvr_data$total_price)) %>%
+  arrange(desc(.$price_sum)) %>% 
+  head()
+
+lvr_data %>% groupBy(lvr_data$area) %>% 
+  summarize(price_sum = mean(lvr_data$price_per_sqmeter)) %>%
+  arrange(desc(.$price_sum)) %>% 
+  head()
+
+```
+
+
 
 
 
