@@ -22,7 +22,7 @@
 - sudo yum install R
 
 ## 下載RStudio
-- wget https://download2.rstudio.org/rstudio-server-rhel-0.99.903-x86_64.rpm
+-  wget https://download2.rstudio.org/rstudio-server-rhel-1.0.136-x86_64.rpm
 
 ## 安裝Rstudio
-- sudo yum install --nogpgcheck rstudio-server-rhel-0.99.903-x86_64.rpm
+- sudo yum install --nogpgcheck rstudio-server-rhel-1.0.136-x86_64.rpm
