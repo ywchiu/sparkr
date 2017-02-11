@@ -85,3 +85,61 @@ sparkR.session(master = "local[*]" ,sparkConfig =                               
 ?sparkR.session
 ```
 
+
+## mutable and immutable
+```{r}
+# step1
+dataset <-  c(1,2,3,4,5,6,7,8)
+
+#step2 
+even <- c() 
+for (i in dataset){
+    if(i%%2 ==0){
+      even <- c(even, i)
+    }
+}
+dataset <- even
+
+# step3
+dataset <- sum(dataset)
+dataset
+
+
+## functional programming
+
+dataset <-  c(1,2,3,4,5,6,7,8)
+
+g <- function(dataset){
+  dataset[dataset %% 2 ==0 ]
+}
+g(dataset)
+
+sum(g(dataset))
+
+```
+
+## Basic SparkR Operation
+```{r}
+download.file('https://raw.githubusercontent.com/ywchiu/sparkr/master/data/lvr_prices.csv', 'lvr_prices.csv')
+
+lvr_prices <- read.csv('lvr_prices.csv')
+head(lvr_prices)
+class(lvr_prices)
+str(lvr_prices)
+
+hist(lvr_prices$total_price)
+hist(log(lvr_prices$total_price, 10))
+
+#  turn R dataframe to Spark DataFrame
+lvr_data <- as.DataFrame(lvr_prices)
+
+?read.df
+?loadDF
+
+df <- loadDF('lvr_prices.csv', 'csv')
+showDF(lvr_data)
+class(lvr_data)
+printSchema(lvr_data)
+str(lvr_data)
+```
+
