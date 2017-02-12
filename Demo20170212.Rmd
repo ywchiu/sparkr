@@ -213,7 +213,39 @@ predictions_details<-collect(predictions_details)
 mse <- mean(predictions_details$label - predictions_details$prediction)
 mse
 
+?sparkR.session
+sparkR.conf()
 ```
+
+
+## Use R to Call Java
+```{r}
+library(rJava)
+.jinit()
+#getwd()
+.jaddClassPath("/home/sparkr")
+helloJavaWorld <- function(){
+  hjw <- .jnew("HelloJavaWorld") # create instance of HelloJavaWorld class
+  out <- .jcall(hjw, "S", "sayHello") # invoke sayHello method
+  return(out)
+}
+helloJavaWorld()
+```
+
+## Java Program
+```
+public class HelloJavaWorld{
+
+
+    public String sayHello(){
+       return "Hello";
+    }
+    public static void main(String args[]){
+    }
+}
+
+```
+
 
 
 
