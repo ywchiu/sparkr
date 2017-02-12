@@ -154,6 +154,66 @@ createOrReplaceTempView(lvr_data, "lvr_data")
 printSchema(lvr_data)
 lvr_sql <- sql('SELECT area, AVG(total_price) FROM lvr_data WHERE house_age < 30 GROUP BY area ')
 head(lvr_sql)
+a <- createExternalTable('lvr_data2', path='lvr_prices.csv', source='csv')
+head(lvr_prices)
+lvr_sql2 <- sql('SELECT _c0, _c10 FROM lvr_data2')
+head(lvr_sql2)
 ```
+
+## Predict House Price
+```{r}
+
+str(lvr_prices)
+plot(log(total_price) ~ log(building_sqmeter), data = lvr_prices)
+fit <- lm(total_price ~ building_sqmeter, data = lvr_prices)
+fit$coefficients[2]
+222370/0.3025
+
+
+```
+
+## Linear Regression
+```{r}
+library(lars)
+data("diabetes")
+View(diabetes)
+?diabetes
+
+diabetes_all<-data.frame(cbind(diabetes$x, y =diabetes$y))
+View(diabetes_all)
+
+outcome_name<-'y'
+diabetes_all$sex<-as.numeric(as.factor(diabetes_all$sex))
+
+
+set.seed(1234)
+splitIndex<-base::sample(nrow(diabetes_all),floor(0.75*nrow(diabetes_all)))
+train_diabetes<-diabetes_all[splitIndex,]
+dim(train_diabetes)
+
+test_diabetes<-diabetes_all[-splitIndex,]
+dim(test_diabetes)
+
+train_diabetes_sp<-createDataFrame(train_diabetes)
+test_diabetes_sp<-createDataFrame(test_diabetes)
+
+?glm
+model <- glm(y~age+sex+bmi+map+tc+ldl+hdl+tch+ltg+glu, data=train_diabetes_sp, family='gaussian')
+summary(model)
+
+
+
+predictions <- predict(model, newData=test_diabetes_sp)
+names(predictions)
+predictions_details<-select(predictions, predictions$label,predictions$prediction)
+
+predictions_details<-collect(predictions_details)
+
+
+mse <- mean(predictions_details$label - predictions_details$prediction)
+mse
+
+```
+
 
 
