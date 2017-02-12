@@ -75,4 +75,85 @@ lvr_prices %>%
 
 ```
 
+## Aggregation
+```{r}
+
+detach("package:dplyr", unload=TRUE)
+head(summarize(group_by(lvr_data, "area"), price_sum=sum(lvr_data$total_price)))
+
+taipei_house <- lvr_data %>% 
+  group_by("area") %>%
+  summarize(price_sum = sum(lvr_data$total_price)) %>%
+  collect()
+
+taipei_house
+
+
+taipei_house_mean <- lvr_data %>% 
+  group_by("area") %>%
+  summarize(price_mean = mean(lvr_data$total_price)) %>%
+  collect()
+
+a <- taipei_house_mean[order(taipei_house_mean$price_mean, decreasing = TRUE),]
+a
+barplot(height=a$price_mean, names.arg = a$area, col = as.factor(a$area))
+
+
+
+lvr_data %>% 
+  group_by("area") %>%
+  summarize(price_mean = mean(lvr_data$total_price)) %>%
+  arrange(desc(.$price_mean)) %>%
+  head()
+```
+
+## Demo of magrittr
+```{r}
+a <- c(1,2,3,4,5)
+head(a,3)
+a %>% head(3)
+3 %>% head(a, .)
+```
+
+
+## 新增欄位
+```{r}
+printSchema(lvr_data)
+showDF(lvr_data)
+
+lvr_data$house_age <-(datediff(date_format(lvr_data$trading_ymd, "yyyy-MM-dd"), date_format(lvr_data$finish_ymd, "yyyy-MM-dd")))/365
+?datediff
+
+printSchema(lvr_data)
+showDF(lvr_data)
+```
+
+## 根據各區計算每月平均價格變化
+```{r}
+?date_format
+lvr_data$trading_ym <- date_format(lvr_data$trading_ymd, "yyyy-MM-01")
+printSchema(lvr_data)
+showDF(lvr_data)
+
+#method1
+mean_prices<-summarize(groupBy(lvr_data, lvr_data$area, lvr_data$trading_ym), price_avg=mean(lvr_data$total_price))
+
+#method2
+mean_df <- lvr_data %>% 
+  groupBy("area", "trading_ym") %>%
+  summarize(price_avg = mean(lvr_data$total_price)) %>%
+  collect()
+
+mean_df
+
+```
+
+## SparkSQL
+```{r}
+createOrReplaceTempView(lvr_data, "lvr_data")
+printSchema(lvr_data)
+lvr_sql <- sql('SELECT area, AVG(total_price) FROM lvr_data WHERE house_age < 30 GROUP BY area ')
+head(lvr_sql)
+```
+
 
