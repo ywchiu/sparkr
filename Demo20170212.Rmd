@@ -1,0 +1,33 @@
+---
+title: "Demo20170212"
+author: "David Chiu"
+date: "2017/2/12"
+output: html_document
+---
+## Setup SparkR
+```{r}
+# 設定SparkR 環境變數
+if (nchar(Sys.getenv("SPARK_HOME")) < 1) {
+  Sys.setenv(SPARK_HOME = "/usr/local/spark")
+}
+
+# 載入SparkR
+library(SparkR, lib.loc = c(file.path(Sys.getenv("SPARK_HOME"), "R", "lib")))
+
+# Start Cluster
+sparkR.session(master = "spark://master:7077", 
+               sparkConfig = list(spark.executor.memory = "600m", 
+                                  spark.sql.shuffle.partitions = "3",
+                                  spark.default.parallelism="2"))
+
+lvr_prices <- read.csv('lvr_prices.csv')
+head(lvr_prices)
+class(lvr_prices)
+lvr_data <- as.DataFrame(lvr_prices)
+printSchema(lvr_data)
+SparkR::head(SparkR::select(lvr_data, "total_price"))
+SparkR::head(SparkR::filter(lvr_data, lvr_data$area=='大安區'))
+
+```
+
+
