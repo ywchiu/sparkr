@@ -1,0 +1,145 @@
+---
+title: "20170211Demo"
+author: "David Chiu"
+date: "2017/2/11"
+output: html_document
+---
+
+## R Demo
+```{r}
+data(iris)
+View(iris)
+
+class(iris)
+str(iris)
+summary(iris)
+
+head(iris)
+tail(iris)
+?summary
+
+iris[1 ,  ]
+iris[  , 1]
+iris[3 , 1]
+
+iris[3 , "Sepal.Length"]
+
+iris[1:3, ]
+iris$Sepal.Length
+
+iris[iris$Species == 'setosa',  ]
+
+sort(iris$Sepal.Length)
+sort(iris$Sepal.Length, decreasing = TRUE)
+
+order(iris$Sepal.Length)
+iris[order(iris$Sepal.Length),]
+
+
+pie(table(iris$Species))
+hist(iris$Sepal.Length)
+boxplot(iris$Petal.Length)
+boxplot(Petal.Length ~ Species, data = iris)
+plot(x=iris$Petal.Length, y=iris$Petal.Width, col=iris$Species)
+
+library(rpart)
+fit <- rpart(Species ~ Sepal.Length + Petal.Length + Sepal.Width + Petal.Width, data = iris)
+plot(fit, margin= 0.1)
+text(fit)
+
+
+a <- 1:10
+a + 50
+
+b <- c()
+for (e in a){
+  b <- c(b, e + 50)
+}
+
+b <- rep(0, 10)
+for (e in a){
+  b[e] <- e + 50
+}
+b
+
+
+
+```
+
+
+## Setup sparkR
+```{r}
+# 設定SparkR 環境變數
+if (nchar(Sys.getenv("SPARK_HOME")) < 1) {
+  Sys.setenv(SPARK_HOME = "/usr/local/spark")
+}
+
+# 載入SparkR
+library(SparkR, lib.loc = c(file.path(Sys.getenv("SPARK_HOME"), "R", "lib")))
+
+# 　本地端啟用
+sparkR.session(master = "local[*]" ,sparkConfig =                                          list(
+                        spark.sql.shuffle.partitions = "3",
+                        spark.default.parallelism="2",
+                        spark.cores.max = "1"))
+?sparkR.session
+```
+
+
+## mutable and immutable
+```{r}
+# step1
+dataset <-  c(1,2,3,4,5,6,7,8)
+
+#step2 
+even <- c() 
+for (i in dataset){
+    if(i%%2 ==0){
+      even <- c(even, i)
+    }
+}
+dataset <- even
+
+# step3
+dataset <- sum(dataset)
+dataset
+
+
+## functional programming
+
+dataset <-  c(1,2,3,4,5,6,7,8)
+
+g <- function(dataset){
+  dataset[dataset %% 2 ==0 ]
+}
+g(dataset)
+
+sum(g(dataset))
+
+```
+
+## Basic SparkR Operation
+```{r}
+download.file('https://raw.githubusercontent.com/ywchiu/sparkr/master/data/lvr_prices.csv', 'lvr_prices.csv')
+
+lvr_prices <- read.csv('lvr_prices.csv')
+head(lvr_prices)
+class(lvr_prices)
+str(lvr_prices)
+
+hist(lvr_prices$total_price)
+hist(log(lvr_prices$total_price, 10))
+
+#  turn R dataframe to Spark DataFrame
+lvr_data <- as.DataFrame(lvr_prices)
+
+?read.df
+?loadDF
+
+df <- loadDF('lvr_prices.csv', 'csv')
+showDF(lvr_data)
+class(lvr_data)
+printSchema(lvr_data)
+str(lvr_data)
+```
+
