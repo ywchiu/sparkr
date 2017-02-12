@@ -29,7 +29,9 @@ export PATH=$PATH:$SPARK_HOME/bin
 ## 修改 slaves 跟 spark-env
 - vi slaves
 ```
-master
+data1
+data2
+data3
 ```
 
 - vi spark-env.sh
@@ -66,11 +68,18 @@ PermitEmptyPasswords yes
 ## 檢查 IP
 - ifconfig 
 
-## 修改Hostname
+## 永久生效
+- vi /etc/hostname
+- 跟據主機Hostname 打入名稱
+```
+master
+```
+
+## 修改Hostname (立即但暫時生效)
 - 在master 下: sudo hostname master 
 - 在data1  下: sudo hostname data1
 - 在data2  下: sudo hostname data2 
-- 在data3  下: sudo hostname data3 
+- 在data3  下: sudo hostname data3
 
 ## 編輯 hosts
 - vi /etc/hosts
@@ -90,4 +99,7 @@ PermitEmptyPasswords yes
 
 ## 關閉所有Cluster
 - /usr/local/spark/sbin/stop-all.sh
+
+## 檢視是否啟用
+- master:8080
 
