@@ -23,10 +23,55 @@ sparkR.session(master = "spark://master:7077",
 lvr_prices <- read.csv('lvr_prices.csv')
 head(lvr_prices)
 class(lvr_prices)
+
 lvr_data <- as.DataFrame(lvr_prices)
 printSchema(lvr_data)
+
 SparkR::head(SparkR::select(lvr_data, "total_price"))
 SparkR::head(SparkR::filter(lvr_data, lvr_data$area=='大安區'))
+
+```
+
+## Advanced Spark Operation
+```{r}
+
+col <- SparkR::select(lvr_data, "total_price")
+col
+SparkR::head(col)
+
+filt <- SparkR::filter(lvr_data, lvr_data$area=='大安區')
+filt
+printSchema(filt)
+SparkR::head(filt)
+
+
+```
+## %>%
+```{r}
+
+SparkR::head(SparkR::filter(SparkR::select(lvr_data, "total_price"), lvr_data$area=='大安區'))
+
+library(magrittr)
+class(lvr_data)
+lvr_data %>% 
+  SparkR::select("total_price", "area") %>% 
+  SparkR::filter(lvr_data$area=='大安區') %>% 
+  head()
+
+?collect
+lvr_data %>% 
+  SparkR::select("total_price", "area") %>% 
+  SparkR::filter(lvr_data$area=='大安區') %>%
+  SparkR::collect()
+  
+
+install.packages("dplyr")
+library(dplyr)
+class(lvr_prices)
+lvr_prices %>% 
+  dplyr::select(total_price, area) %>%
+  dplyr::filter(area=='大安區') %>%
+  head()
 
 ```
 
