@@ -1,0 +1,37 @@
+
+```
+
+library(SparkR, lib.loc = c(file.path(Sys.getenv("SPARK_HOME"), "R", "lib")))
+
+sparkR.session(master = "local[*]", sparkConfig = list(spark.driver.memory = "1g"))
+```
+
+
+```{r}
+if (nchar(Sys.getenv("SPARK_HOME")) < 1) {
+  Sys.setenv(SPARK_HOME = "/usr/local/spark")
+}
+
+library(SparkR, lib.loc = c(file.path(Sys.getenv("SPARK_HOME"), "R", "lib")))
+sparkR.session(master = "local[*]", sparkConfig = list(spark.driver.memory = "1g"))
+lvr_prices <- read.csv("~/lvr_prices.csv")
+View(lvr_prices)
+
+str(lvr_prices)
+class(lvr_prices)
+
+hist(lvr_prices$total_price)
+hist(log(lvr_prices$total_price))
+
+#?as.DataFrame
+lvr_data <- as.DataFrame(lvr_prices)
+?read.df
+df <- read.df("lvr_prices.csv", "csv")
+head(lvr_data)
+showDF(lvr_data)
+printSchema(lvr_data)
+
+
+
+
+```
