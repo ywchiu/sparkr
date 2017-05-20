@@ -1,12 +1,12 @@
 # 安裝單機版步驟
-## 下載Spark 2.0.1
-- wget http://d3kbcqa49mib13.cloudfront.net/spark-2.0.1-bin-hadoop2.7.tgz
+## 下載Spark 2.1.1
+- wget https://d3kbcqa49mib13.cloudfront.net/spark-2.1.1-bin-hadoop2.7.tgz
 
 ## 解壓縮檔案
-- tar -zxvf spark-2.0.1-bin-hadoop2.7.tgz
+- tar -zxvf spark-2.1.1-bin-hadoop2.7.tgz
 
 ## 將檔案放置至/usr/local/spark 中
-- sudo mv spark-2.0.1-bin-hadoop2.7 /usr/local/spark
+- sudo mv spark-2.1.1-bin-hadoop2.7 /usr/local/spark
 
 ## 設定環境變數
 - sudo vi /etc/profile
