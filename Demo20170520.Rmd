@@ -1,19 +1,16 @@
 
 ```
-
-library(SparkR, lib.loc = c(file.path(Sys.getenv("SPARK_HOME"), "R", "lib")))
-
-sparkR.session(master = "local[*]", sparkConfig = list(spark.driver.memory = "1g"))
-```
-
-
-```{r}
 if (nchar(Sys.getenv("SPARK_HOME")) < 1) {
   Sys.setenv(SPARK_HOME = "/usr/local/spark")
 }
 
 library(SparkR, lib.loc = c(file.path(Sys.getenv("SPARK_HOME"), "R", "lib")))
 sparkR.session(master = "local[*]", sparkConfig = list(spark.driver.memory = "1g"))
+
+```
+
+
+```{r}
 lvr_prices <- read.csv("~/lvr_prices.csv")
 View(lvr_prices)
 
