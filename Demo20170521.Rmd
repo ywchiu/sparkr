@@ -220,6 +220,61 @@ mse
 
 ```
 
+## House Price Prediction
+```{r}
+#str(lvr_prices)
+#plot(log(total_price) ~ log(building_sqmeter), data = lvr_prices)
+fit <- glm(total_price ~ building_sqmeter, data = lvr_data, family = 'gaussian')
+pred <- summary(fit)
+pred
+
+222370/0.3025
+```
+
+## Logistic Regression
+```{r}
+data(iris)
+iris.data <-  iris[1:100,]
+iris.data$Species <-  factor(iris.data$Species, labels = c(0,1))
+
+fit <- glm(Species ~., data = iris.data, family=binomial(logit))
+predict(fit, iris.data)
+
+
+iris.data.sp <- as.DataFrame(iris.data)
+fit3 <- SparkR::glm(Species ~., data = iris.data.sp, family=binomial(logit))
+write.ml(fit3, '/tmp/model2')
+
+model <- read.ml('/tmp/model2')
+
+
+
+```
+## sample save model
+```{r}
+irisDF <- suppressWarnings(createDataFrame(iris))
+# Fit a generalized linear model of family "gaussian" with spark.glm
+gaussianDF <- irisDF
+gaussianTestDF <- irisDF
+gaussianGLM <- spark.glm(gaussianDF, Sepal_Length ~ Sepal_Width + Species, family = "gaussian")
+
+# Save and then load a fitted MLlib model
+modelPath <- tempfile(pattern = "ml", fileext = ".tmp")
+write.ml(gaussianGLM, modelPath)
+gaussianGLM2 <- read.ml(modelPath)
+
+# Check model summary
+summary(gaussianGLM2)
+
+# Check model prediction
+gaussianPredictions <- predict(gaussianGLM2, gaussianTestDF)
+showDF(gaussianPredictions)
+
+unlink(modelPath)
+```
+
+
+
 
 
 ## DPLYR
