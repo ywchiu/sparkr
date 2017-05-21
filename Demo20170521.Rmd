@@ -147,6 +147,79 @@ for (a in levels(house_prices3$area)){
 
 ```
 
+## Spark SQL
+```{r}
+createOrReplaceTempView(lvr_data, "lvr_data")
+
+
+lvr_sql <- sql("SELECT area, avg(total_price) as mean_price FROM lvr_data WHERE house_age < 30 group by area")
+
+lvr_sql <- sql("SELECT area, trading_ym, avg(total_price) as mean_price FROM lvr_data WHERE house_age < 30 group by area, trading_ym")
+
+head(lvr_sql)
+
+```
+
+
+## Machine Learning With SparkR
+```{r}
+#install.packages('lars')
+library(lars)
+data("diabetes")
+View(diabetes)
+
+dim(diabetes$x)
+diabetes$y
+
+lm(y ~ x, data = diabetes)
+
+diabetes_all <- data.frame(cbind(diabetes$x, y = diabetes$y))
+View(diabetes_all)
+outcome_name <- 'y'
+diabetes_all$sex <- as.numeric(as.factor(diabetes_all$sex ))
+str(diabetes_all)
+
+
+set.seed(1234)
+splitIndex <- base::sample(nrow(diabetes_all), floor(0.75*nrow(diabetes_all)))
+#splitIndex
+train_diabetes <- diabetes_all[ splitIndex,]
+test_diabetes <- diabetes_all[-splitIndex,]
+dim(train_diabetes)
+dim(test_diabetes)
+
+
+train_diabetes_sp <- as.DataFrame(train_diabetes)
+test_diabetes_sp  <- as.DataFrame(test_diabetes)
+
+
+model <- SparkR::glm(y~age+sex+bmi+map+tc+ldl+hdl+tch+ltg+glu,
+data=train_diabetes_sp, family='gaussian')
+SparkR::summary(model)
+
+
+model2 <- glm(y~age+sex+bmi+map+tc+ldl+hdl+tch+ltg+glu,
+data=train_diabetes, family='gaussian')
+
+summary(model2)
+
+
+
+predictions <- predict(model, newData = test_diabetes_sp)
+names(predictions)
+
+predictions_details <- select(predictions, predictions$label,
+predictions$prediction)
+
+collect(predictions_details)
+
+predictions_details <- collect(predictions_details)
+
+mse <- mean(predictions_details$label - predictions_details$prediction)
+mse
+
+```
+
 
 
 ## DPLYR
