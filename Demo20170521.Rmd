@@ -36,9 +36,64 @@ head(d)
 head(filter(lvr_data, lvr_data$area == '大安區'))
 
 
-lvr_data %>%    select(lvr_data$area, lvr_data$building_sqmeter, lvr_data$total_price) %>% 
-   filter(lvr_data$area == '大安區') %>% 
-   head()
+?select
+
+library(magrittr)
+
+lvr_data %>%  SparkR::select(lvr_data$area, lvr_data$building_sqmeter, lvr_data$total_price) %>% 
+   SparkR::filter(lvr_data$area == '大安區') %>% 
+   SparkR::head()
+
+
+```
+## Aggregation
+```{r}
+##SELECT area, SUM(total_price) FROM lvr_data GROUP BY area;
+head(summarize(groupBy(lvr_data, "area"), sumPrice = sum(lvr_data$total_price)))
+
+
+##SELECT area, SUM(total_price) AS sumPrice FROM lvr_data GROUP BY area ORDER BY sumPrice DESC;
+lvr_data %>%
+  SparkR::groupBy("area") %>%
+  SparkR::summarize(sumPrice = sum(lvr_data$total_price)) %>%
+  SparkR::arrange(SparkR::desc(.$sumPrice)) %>%
+  SparkR::head()
+
+
+
+##SELECT area, AVF(total_price) AS mean_price FROM lvr_data GROUP BY area ORDER BY mean_price DESC;
+lvr_data %>%
+  SparkR::groupBy("area") %>%
+  SparkR::summarize(mean_price = mean(lvr_data$total_price)) %>%
+  SparkR::arrange(SparkR::desc(.$mean_price)) %>%
+  SparkR::head()
+
+
+house_price <- lvr_data %>%
+  SparkR::groupBy("area") %>%
+  SparkR::summarize(mean_price = mean(lvr_data$total_price)) %>%
+  SparkR::arrange(SparkR::desc(.$mean_price)) %>%
+  SparkR::collect()
+
+barplot(height = house_price$mean_price, names.arg = house_price$area)
+
+```
+
+
+
+
+## DPLYR
+```{r}
+#install.packages('dplyr')
+library(dplyr)
+
+head(filter(select(lvr_prices, total_price, area, floor), area == '中山區' ))
+
+lvr_prices %>% 
+  select(total_price, area, floor) %>% 
+  filter(area == '中山區') %>% 
+  head()
+
 
 
 ```
