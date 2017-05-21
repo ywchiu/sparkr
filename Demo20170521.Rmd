@@ -1,0 +1,45 @@
+---
+title: "Demo20170521"
+author: "David Chiu"
+date: "2017-5-21"
+output: html_document
+---
+
+```{r}
+if (nchar(Sys.getenv("SPARK_HOME")) < 1) {
+  Sys.setenv(SPARK_HOME = "/usr/local/spark")
+}
+
+library(SparkR, lib.loc = c(file.path(Sys.getenv("SPARK_HOME"), "R", "lib")))
+
+sparkR.session(master = "spark://master:7077", 
+               sparkConfig = list(spark.executor.memory = "600m"))
+
+?read.df
+lvr_prices <- read.csv("~/lvr_prices.csv")
+
+lvr_data <- as.DataFrame(lvr_prices)
+
+printSchema(lvr_data)
+showDF(lvr_data)
+
+head(lvr_prices[,c('area', 'total_price')])
+
+a <- select(lvr_data, lvr_data$area, lvr_data$total_price)
+head(a)
+
+b <- filter(lvr_data, lvr_data$area == '大安區')
+d <- select(b, b$area, b$total_price)
+head(d)
+
+
+head(filter(lvr_data, lvr_data$area == '大安區'))
+
+
+lvr_data %>%    select(lvr_data$area, lvr_data$building_sqmeter, lvr_data$total_price) %>% 
+   filter(lvr_data$area == '大安區') %>% 
+   head()
+
+
+```
+
