@@ -78,7 +78,74 @@ house_price <- lvr_data %>%
 barplot(height = house_price$mean_price, names.arg = house_price$area)
 
 ```
+## Add Column
+```{r}
+lvr_data %>% head()
 
+printSchema(lvr_data)
+
+
+lvr_data$house_age <-  SparkR::datediff(SparkR::date_format(lvr_data$trading_ymd, 'yyyy-MM-dd'), SparkR::date_format(lvr_data$finish_ymd, 'yyyy-MM-dd')) / 365
+
+lvr_data %>% head()
+
+
+lvr_data$trading_ym <- date_format(lvr_data$trading_ymd, "yyyy-MM-01")
+lvr_data %>% head()
+
+## SELECT trading_ym, AVG(total_price) FROM lvr_data GROUP BY trading_ym;
+
+
+house_prices <- lvr_data %>% 
+  groupBy('trading_ym') %>%
+  summarize(mean_price = mean(lvr_data$total_price)) %>%
+  arrange(desc(.$mean_price)) %>%
+  collect()
+
+class(house_prices)
+head(house_prices)
+str(house_prices)
+
+house_prices$trading_ym <- as.Date(house_prices$trading_ym)
+
+#order(house_prices$trading_ym)
+plot(mean_price[order(house_prices$trading_ym)] ~ trading_ym[order(house_prices$trading_ym)], data = house_prices, type='l')
+
+
+house_prices2 <- lvr_data %>% 
+  groupBy('trading_ym') %>%
+  summarize(mean_price = mean(lvr_data$price_per_sqmeter)) %>%
+  arrange(desc(.$mean_price)) %>%
+  collect()
+
+house_prices2$trading_ym <- as.Date(house_prices2$trading_ym)
+
+#order(house_prices$trading_ym)
+plot(mean_price[order(house_prices2$trading_ym)] ~ trading_ym[order(house_prices2$trading_ym)], data = house_prices2, type='l')
+
+
+## SELECT area, trading_ym, AVG(total_price) FROM lvr_data GROUP BY trading_ym area;
+
+house_prices3 <- lvr_data %>% 
+  groupBy('area','trading_ym') %>%
+  summarize(mean_price = mean(lvr_data$total_price)) %>%
+  arrange(desc(.$mean_price)) %>%
+  collect()
+
+
+house_prices3$trading_ym <- as.Date(house_prices3$trading_ym)
+
+house_prices3$area <- as.factor(house_prices3$area)
+
+
+par(mfrow=c(4,3))
+for (a in levels(house_prices3$area)){
+    df <- house_prices3[house_prices3$area == a, ]
+    plot(mean_price[order(df$trading_ym)] ~      trading_ym[order(df$trading_ym)], data = df, type='l', main = a)
+}  
+
+
+```
 
 
 
